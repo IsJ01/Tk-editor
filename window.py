@@ -54,7 +54,8 @@ class Window(Tk):
         self.master_.addPropertyFields(event.widget)
         self.master_.selected_objects.clear()
         self.press = [[event.x, event.y], True]
-        self.moved = [None, self.current_obj.winfo_x(), self.current_obj.winfo_y()]
+        self.moved = [None, (self.current_obj.winfo_x(), self.current_obj.winfo_y(),
+                             self.current_obj.winfo_width(), self.current_obj.winfo_height())]
 
     def up(self, event):
         if self.moved[0]:
@@ -76,11 +77,11 @@ class Window(Tk):
 
     def delete_object(self, widget: Widget, del_=True):
         if widget != self:
-            self.current_obj = None
             if del_:
                 widget.destroy()
             else:
                 widget.place_forget()
+            self.current_obj = None
 
     def copy_widget(self, widget):
         if widget != self:
@@ -181,7 +182,9 @@ class Window(Tk):
                 obj = self.new_obj(self)
                 self.add_object(obj, (x, y))
         if self.press[1] and event.widget != self:
-            self.moved = [self.current_obj, self.moved[1], self.moved[2], x, y]
+            self.moved = [self.current_obj, self.moved[1], (x, y,
+                                                            self.current_obj.winfo_width(),
+                                                            self.current_obj.winfo_height())]
             self.move_obj(self.current_obj, (x, y))
         elif self.press[1] and self.current_obj in (self, *self.canvases):
             x0, y0 = self.press[0]

@@ -45,7 +45,7 @@ class EventKeeper:
         self.master.conf_panel.addPropertyFields(obj)
 
     def redoDelEvent(self, event):
-        self.addEvent("delete", event)
+        self.addEvent("delete", (event))
         for wid, x, y, w, h in event:
             self.master.window.delete_object(wid, del_=False)
 
@@ -78,24 +78,24 @@ class EventKeeper:
 
     def removeMoveEvent(self, event):
         self.redo_events.append({"move": event})
-        event[0].place(x=event[1], y=event[2])
+        event[0].place(x=event[1][0], y=event[1][1], width=event[1][2], height=event[1][3])
 
     def redoMoveEvent(self, event):
         self.events.append({"move": event})
-        event[0].place(x=event[3], y=event[4])
+        event[0].place(x=event[2][0], y=event[2][1], width=event[2][2], height=event[2][3])
 
     def redoEvent(self):
         if not self.redo_events:
             return
         if "delete" in self.redo_events[-1]:
             self.redoDelEvent(self.redo_events[-1]["delete"])
-        if "append" in self.redo_events[-1]:
+        elif "append" in self.redo_events[-1]:
             self.redoAppendEvent(self.redo_events[-1]["append"])
-        if "paste" in self.redo_events[-1]:
+        elif "paste" in self.redo_events[-1]:
             self.redoPasteEvent(self.redo_events[-1]["paste"])
-        if "apply" in self.redo_events[-1]:
+        elif "apply" in self.redo_events[-1]:
             self.redoApplyEvent(self.redo_events[-1]["apply"])
-        if "move" in self.redo_events[-1]:
+        elif "move" in self.redo_events[-1]:
             self.redoMoveEvent(self.redo_events[-1]["move"])
         del self.redo_events[-1]
 
@@ -104,12 +104,12 @@ class EventKeeper:
             return
         if "delete" in self.events[-1]:
             self.removeDelEvent(self.events[-1]["delete"])
-        if "append" in self.events[-1]:
+        elif "append" in self.events[-1]:
             self.removeAppendEvent(self.events[-1]["append"])
-        if "paste" in self.events[-1]:
+        elif "paste" in self.events[-1]:
             self.removePasteEvent(self.events[-1]["paste"])
-        if "apply" in self.events[-1]:
+        elif "apply" in self.events[-1]:
             self.removeApplyEvent(self.events[-1]["apply"])
-        if "move" in self.events[-1]:
+        elif "move" in self.events[-1]:
             self.removeMoveEvent(self.events[-1]["move"])
         del self.events[-1]

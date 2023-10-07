@@ -237,7 +237,6 @@ class Main:
             self.window.delete_object(wid, del_=False)
         self.event_keeper.addEvent("delete", delete_objects)
         self.conf_panel.panel.delete("all")
-        objects.clear()
 
     def undo(self, *args):
         self.event_keeper.removeEvent()
