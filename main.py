@@ -269,7 +269,6 @@ class Main:
                                       wid.winfo_width(), wid.winfo_height()))
             self.window.delete_object(wid, del_=False)
         self.event_keeper.addEvent("delete", delete_objects)
-        objects.clear()
 
     def paste(self, *args):
         if self.copy_objects:
