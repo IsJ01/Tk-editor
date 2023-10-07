@@ -263,9 +263,9 @@ class Main:
             objects = self.selected_objects
         delete_objects = []
         for wid in objects:
-            delete_objects.append((self.window.copy_widget(wid), wid.winfo_x(), wid.winfo_y(),
+            delete_objects.append((wid, wid.winfo_x(), wid.winfo_y(),
                                    wid.winfo_width(), wid.winfo_height()))
-            self.copy_objects.append((wid, wid.winfo_x(), wid.winfo_y(),
+            self.copy_objects.append((self.window.copy_widget(wid), wid.winfo_x(), wid.winfo_y(),
                                       wid.winfo_width(), wid.winfo_height()))
             self.window.delete_object(wid, del_=False)
         self.event_keeper.addEvent("delete", delete_objects)
