@@ -39,7 +39,7 @@ class EventKeeper:
             obj.place(x=fields["x"], y=fields["y"], width=fields["width"], height=fields["height"])
             for field in fields:
                 if field == "widgetName":
-                    obj.widgetName = list(fields[field])[0]
+                    obj.widgetName = ''.join(list(fields[field]))
                 if field not in ["widgetName", "x", "y", "width", "height"]:
                     obj[field] = fields[field]
         self.master.conf_panel.addPropertyFields(obj)
@@ -71,7 +71,7 @@ class EventKeeper:
             obj.place(x=fields["x"], y=fields["y"], width=fields["width"], height=fields["height"])
             for field in fields:
                 if field == "widgetName":
-                    obj.widgetName = list(fields[field])[0]
+                    obj.widgetName = ''.join(list(fields[field]))
                 if field not in ["widgetName", "x", "y", "width", "height"]:
                     obj[field] = fields[field]
         self.master.conf_panel.addPropertyFields(obj)
