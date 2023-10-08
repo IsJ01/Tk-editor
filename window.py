@@ -8,7 +8,7 @@ class Window(Tk):
         self.master_ = master
         self.style = ttk.Style(self)
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.moved = []
+        self.moved = [None]
         self.new_obj = None
         self.current_obj = None
         self.contextMenu = None
