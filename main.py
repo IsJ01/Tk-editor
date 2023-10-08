@@ -257,6 +257,8 @@ class Main:
                                       wid.winfo_width(), wid.winfo_height()))
 
     def cut(self, *args):
+        if self.window.current_obj == self.window:
+            return
         self.copy_objects.clear()
         objects = [self.window.current_obj]
         if self.selected_objects:
