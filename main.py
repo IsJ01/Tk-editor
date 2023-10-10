@@ -302,7 +302,7 @@ class Main:
 
     def select_widgets(self, widgets):
         self.selected_objects.clear()
-        self.selected_objects = widgets
+        self.selected_objects = widgets[::]
 
     # в данный метод сохраняет выбранный пользователем виджет
     def getWidget(self, event):

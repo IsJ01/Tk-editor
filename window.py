@@ -54,7 +54,8 @@ class Window(Tk):
             self.contextMenu.destroy()
             self.contextMenu = None
         self.master_.addPropertyFields(event.widget)
-        self.master_.selected_objects.clear()
+        if self.current_obj not in self.master_.selected_objects:
+            self.master_.selected_objects.clear()
         self.press = [[event.x, event.y], True]
         self.moved = [None, (self.current_obj.winfo_x(), self.current_obj.winfo_y(),
                              self.current_obj.winfo_width(), self.current_obj.winfo_height())]
@@ -113,7 +114,7 @@ class Window(Tk):
         canvas_4 = Label(self, bg="lightblue")
         canvas_4.place(x=x0, y=y0 + abs(y0 - y1), width=abs(x0 - x1), height=1)
         self.canvases = [canvas_1, canvas_2, canvas_3, canvas_4]
-        children = [wid for wid in self.children.values()]
+        children = [wid for wid in self.children.values() if wid.place_info()]
         selected_objects = []
         for w in children:
             if w not in self.canvases:
