@@ -280,11 +280,14 @@ class Main:
                         self.window.winfo_pointery() - self.window.winfo_rooty())
             objects = []
             for wid, x, y, w, h in self.copy_objects:
+                if not wid:
+                    continue
                 new_x = c_x + x - min_x
                 new_y = c_y + y - min_y
                 new_wid = self.window.copy_widget(wid)
                 new_wid.place(x=new_x, y=new_y,
                               width=w, height=h)
+                new_wid.widgetName = self.get_normal_name(new_wid.widgetName)
                 self.window.ver_name(new_wid)
                 objects.append(new_wid)
             self.event_keeper.addEvent("paste", objects)

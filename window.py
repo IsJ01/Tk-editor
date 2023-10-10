@@ -35,6 +35,8 @@ class Window(Tk):
         self.destroy()
 
     def createWidgetMenu(self, args):
+        if args.widget == self:
+            return
         self.current_obj = args.widget
         if self.current_obj != self.master_.conf_panel.current_object:
             self.master_.addPropertyFields(args.widget)
@@ -141,6 +143,30 @@ class Window(Tk):
             obj.configure(text=self.new_obj.__name__)
             obj.configure(border=2, relief="groove")
 
+    @staticmethod
+    def w_strip(name: str, name_2: str):
+        min_n, max_n = sorted([name, name_2], key=lambda x: len(x))
+        index = 0
+        for i in range(len(min_n)):
+            if min_n[i] == max_n[i]:
+                index += 1
+            else:
+                break
+        return max_n[index:]
+
+    def get_count_of_name(self, name, names):
+        count = 0
+        for n in names:
+            n: str
+            if name == n:
+                count += 1
+                continue
+            if name in n:
+                s_n = self.w_strip(name, n)
+                if s_n[0] == "_" and s_n[1:].isdigit():
+                    count += 1
+        return count
+
     def ver_name(self, widget: Widget, new=True):
         names = [wid.widgetName for wid in self.children.values() if wid != widget and wid.place_info()]
         if not new and widget.widgetName in names:
@@ -150,8 +176,8 @@ class Window(Tk):
                 return False
         else:
             name = widget.widgetName
-            if names.count(widget.widgetName) >= 1:
-                name = f"{widget.widgetName}_{names.count(widget.widgetName) + 1}"
+            if self.get_count_of_name(name, names) >= 1:
+                name = f"{widget.widgetName}_{self.get_count_of_name(name, names) + 1}"
             widget.widgetName = name
 
     @staticmethod
@@ -170,6 +196,7 @@ class Window(Tk):
             pass
         self.setDefaultState(obj)
         self.current_obj = obj
+        self.current_obj.widgetName = self.master_.get_normal_name(self.current_obj.widgetName)
         self.ver_name(self.current_obj)
 
     def motion(self, event):
