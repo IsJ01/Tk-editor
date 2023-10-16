@@ -19,16 +19,6 @@ class Main:
         self.copy_objects = []
         self.selected_objects = []
 
-        # obj_ хранит в себе выбранный виджет
-        self.obj_ = None
-        self.event_obj = None
-
-        # curs хранит в себе виджет, на котором была прокрутка
-        self.curs = False
-
-        # widgets - список, размещенных виджетов
-        self.widgets = []
-
         # в этом словаре хранятся свойства и их поля
         self.fields = {}
 
@@ -80,6 +70,7 @@ class Main:
         if not file:
             return
 
+        # функция для получения текста для его добавления в тег
         def getText(widget):
             if "text" in self.conf_panel.widgets[widget.__class__]:
                 return widget["text"]
@@ -105,9 +96,6 @@ class Main:
                             wid.setAttribute(attname=field, value=widget[field].__str__())
                     else:
                         eval(f"wid.setAttribute(attname=field, value=widget.winfo_{field}().__str__())")
-                text = getText(widget)
-                if text:
-                    wid.appendChild(doc.createTextNode(text))
                 win.appendChild(wid)
             doc.writexml(f, "", "\t", "\n")
 
@@ -134,6 +122,7 @@ class Main:
         self.wid_panel = WidgetsPanel(self)
         self.conf_panel.destroy()
         self.conf_panel = ConfigPanel(self)
+        self.event_keeper = EventKeeper(self)
         with open(file, encoding='utf8') as f:
             doc = et.parse(f)
             root = doc.getroot()
@@ -170,7 +159,7 @@ class Main:
         except SyntaxError:
             return name.replace("::", "_")
 
-    # метод change сохраняет свойства виджета
+    # метод apply сохраняет свойства виджета
     def apply(self, *args):
         if not self.window.current_obj:
             return
