@@ -189,9 +189,15 @@ class Main:
             old_fields["widgetName"] = self.window.current_obj.widgetName
             self.window.current_obj.widgetName = name
             for field in ['width', 'height', 'x', 'y']:
-                old_fields[field] = str(eval(f'self.window.current_obj.winfo_{field}()'))
-                conf[field] = (eval(f"int(self.fields[field].get()) if self.fields[field].get()"
-                                    f" else self.window.current_obj.winfo_{field}()"))
+                try:
+                    old_fields[field] = str(eval(f'self.window.current_obj.winfo_{field}()'))
+                    conf[field] = (eval(f"int(self.fields[field].get()) if self.fields[field].get()"
+                                        f" else self.window.current_obj.winfo_{field}()"))
+                except ValueError:
+                    self.fields[field].delete(0, "end")
+                    self.fields[field].insert(0, str(eval(f'self.window.current_obj.winfo_{field}()')))
+                    conf[field] = (eval(f"int(self.fields[field].get()) if self.fields[field].get()"
+                                        f" else self.window.current_obj.winfo_{field}()"))
             for field in self.fields:
                 if self.fields[field].get() or field in ["cursor", "text"]:
                     if field not in ["widgetName", "x", "y", "width", "height"]:
