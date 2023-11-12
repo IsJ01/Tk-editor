@@ -62,7 +62,8 @@ class ConfigPanel(Tk):
                                   'heart', 'man', 'mouse', 'pirate', 'plus', 'shuttle', 'sizing',
                                   'spider', 'spraycan', 'star', 'target', 'tcross', 'trek', 'watch'],
                        "relief": ["raised", "sunken", "flat", "ridge", "solid", "groove"],
-                       "theme": ttk.Style().theme_names()
+                       "theme": ttk.Style().theme_names(),
+                       "orient": ["vertical", "horizontal"]
                        }
 
         table_fields = {}
@@ -105,7 +106,7 @@ class ConfigPanel(Tk):
         self.show_color_dialog(list(event.widget.master.children.values())[1])
 
     def get_field(self, fields, master):
-        if fields in ['cursor', 'relief', "theme"]:
+        if fields in ['cursor', 'relief', "theme", "orient"]:
             return [ttk.Combobox(master, values=self.values[fields])]
         if fields in ['width', 'height', 'x', 'y', 'border', "underline"]:
             return [ttk.Spinbox(master, from_=-10000, to=10000)]
