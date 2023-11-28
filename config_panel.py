@@ -59,8 +59,8 @@ class ConfigPanel(Tk):
                    ttk.Frame, ttk.Labelframe, ttk.Notebook,
                    ttk.Scale, ttk.Scrollbar, ttk.Treeview, ttk.Separator, ttk.Sizegrip, ttk.Progressbar]
         fields = ["widgetName", 'width', 'height', 'x', 'y', 'background', "activebackground",
-                  'foreground', "activeforeground", 'cursor', 'border', 'relief', 'text', 'font', 'underline',
-                  "orient"]
+                  'foreground', "activeforeground", 'cursor', 'border', "borderwidth", 'relief', 'text',
+                  'font', 'underline', "orient"]
         self.values = {"cursor": ['arrow', 'circle', 'clock', 'cross', 'dotbox', 'exchange', 'fleur',
                                   'heart', 'man', 'mouse', 'pirate', 'plus', 'shuttle', 'sizing',
                                   'spider', 'spraycan', 'star', 'target', 'tcross', 'trek', 'watch'],
