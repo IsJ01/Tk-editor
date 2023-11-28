@@ -151,13 +151,10 @@ class Main:
             return True
         return False
 
-    @staticmethod
-    def get_normal_name(name: str):
-        try:
-            eval(f"{copy.deepcopy(name)} = 4")
+    def get_normal_name(self, name: str):
+        if self.is_normal_name(name):
             return name
-        except SyntaxError:
-            return name.replace("::", "_")
+        return name.replace("::", "_")
 
     # метод apply сохраняет свойства виджета
     def apply(self, *args):

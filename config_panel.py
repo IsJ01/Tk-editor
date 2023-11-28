@@ -18,12 +18,7 @@ class ConfigPanel(Tk):
         self.geometry(f"{int(self.width / 100 * 17.4) + 22}x{int(self.height * 0.97)}"
                       f"+{int(self.width / 100 * 80 + 2)}+20")
         self.panel_wigets = []
-        self.panel = Canvas(master=self, relief="ridge", width=self.width / 100 * 17.2, height=self.height * 0.97,
-                            borderwidth=2, scrollregion=(0, 0, 340, 900))
-        self.scroll_c2 = Scrollbar(master=self, orient='vertical', command=self.panel.yview)
-        self.panel['yscrollcommand'] = self.scroll_c2.set
-        self.panel.place(x=0, y=0)
-        self.scroll_c2.place(x=self.width / 100 * 17.4 + 4, y=2, height=self.height * 0.97)
+        self.createPanel()
         self.attributes('-toolwindow', True)
         self.resizable(width=False, height=False)
         self.bind('<Control-z>', self.master_.undo)
@@ -32,6 +27,14 @@ class ConfigPanel(Tk):
         self.bind("<Return>", self.focus_out)
         self.title("Configurate panel")
         self.bind("<Button-1>", self.click)
+
+    def createPanel(self):
+        self.panel = Canvas(master=self, relief="ridge", width=self.width / 100 * 17.2, height=self.height * 0.97,
+                            borderwidth=2, scrollregion=(0, 0, 340, 900))
+        self.scroll_c2 = Scrollbar(master=self, orient='vertical', command=self.panel.yview)
+        self.scroll_c2.place(x=self.width / 100 * 17.4 + 4, y=2, height=self.height * 0.97)
+        self.panel['yscrollcommand'] = self.scroll_c2.set
+        self.panel.place(x=0, y=0)
 
     def click(self, event):
         if event.widget in [self.panel, self]:
@@ -131,11 +134,13 @@ class ConfigPanel(Tk):
     def addPropertyFields(self, widget):
         # если объект выбран
         if not self.master_.window.new_obj:
+            for fr in self.panel.winfo_children():
+                for ch in fr.winfo_children():
+                    ch.destroy()
+                fr.destroy()
             self.master_.fields.clear()
             self.current_object = widget
             # в этом цикле панель очищается от старых виджетов
-            for i in self.panel_wigets:
-                self.panel.delete(i)
             # в данном словаре хранятся виджеты и свойства к ним
             # w - переменная в которой хранится название класса выбранного виджета
             w = widget.__class__
