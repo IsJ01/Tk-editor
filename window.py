@@ -7,15 +7,16 @@ class Window(Tk):
         super().__init__()
         self.master_ = master
         self.style = ttk.Style(self)
-        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.protocol("WM_DELETE_WINDOW", self.master_.on_closing)
         self.moved = [None]
         self.new_obj = None
         self.current_obj = None
         self.contextMenu = None
-        self.height = self.winfo_screenheight()
-        self.width = self.winfo_screenwidth()
-        self.geometry(f"{int(self.width / 100 * 65)}x"
-                      f"{int(self.height * 0.884) + 20}+{int(self.width / 100 * 15)}+{20}")
+        self.sc_height = self.winfo_screenheight()
+        self.sc_width = self.winfo_screenwidth()
+        self.geometry(f"{int(self.sc_width / 100 * 65)}x"
+                      f"{int(self.sc_height * 0.884) + 20}"
+                      f"+{int(self.sc_width / 100 * 15)}+{int(self.sc_height * 0.022)}")
         self.press = [[], False]
         self.dx, self.dy = 0, 0
         self.bind("<Button-1>", self.click)
@@ -29,10 +30,6 @@ class Window(Tk):
         self.bind('<Control-v>', self.master_.paste)
         self.bind('<Delete>', self.master_.delete)
         self.canvases = []
-
-    def on_closing(self):
-        self.master_.menu.win_var.set(False)
-        self.destroy()
 
     def createWidgetMenu(self, args):
         if args.widget == self:
@@ -156,17 +153,17 @@ class Window(Tk):
         return max_n[index:]
 
     def get_count_of_name(self, name, names):
-        count = 0
+        counts = []
         for n in names:
             n: str
             if name == n:
-                count += 1
+                counts.append(1)
                 continue
             if name in n:
                 s_n = self.w_strip(name, n)
                 if s_n[0] == "_" and s_n[1:].isdigit():
-                    count += 1
-        return count
+                    counts.append(int(s_n[1:]))
+        return max(counts) if counts else 0
 
     def ver_name(self, widget: Widget, new=True):
         names = [wid.widgetName for wid in self.children.values() if wid != widget and wid.place_info()]

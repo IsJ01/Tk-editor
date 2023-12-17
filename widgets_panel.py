@@ -22,9 +22,9 @@ class WidgetsPanel(Tk):
         style = Style(self)
         style.theme_use("default")
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.height = self.winfo_screenheight()
-        self.width = self.winfo_screenwidth()
-        self.geometry(f"{int(self.width / 100 * 15)}x{int(self.height * 0.97)}+0+20")
+        self.sc_height = self.winfo_screenheight()
+        self.sc_width = self.winfo_screenwidth()
+        self.geometry(f"{int(self.sc_width / 100 * 15)}x{int(self.sc_height * 0.97)}+0+{int(self.sc_height * 0.022)}")
         self.treeView = Treeview(self)
         self.images = ImageDict(self)
         self.render(self.master_.menu.var.get())
@@ -53,6 +53,6 @@ class WidgetsPanel(Tk):
             for wid in v:
                 self.treeView.insert(parent, iid=num, index=END, text=f"   {wid}", tags=tag, image=self.images[wid])
                 num += 1
-        self.treeView.place(y=0, height=self.height, width=self.width / 100 * 15)
+        self.treeView.place(y=0, height=self.sc_height, width=self.sc_width / 100 * 15)
         self.treeView.bind('<Button-3>', self.createTableMenu)
         self.treeView.bind('<<TreeviewSelect>>', self.master_.getWidget)

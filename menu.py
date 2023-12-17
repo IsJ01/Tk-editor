@@ -1,5 +1,4 @@
-from tkinter import Tk, Menu, BooleanVar, TclError, PhotoImage
-import sys
+from tkinter import Tk, Menu, BooleanVar
 
 
 class ToolBar(Tk):
@@ -12,20 +11,11 @@ class ToolBar(Tk):
         self.conf_var = BooleanVar(value=True)
         self.wid_var = BooleanVar(value=True)
         self.master_ = master
-        self.protocol("WM_DELETE_WINDOW", self.on_closing)
-        width = self.winfo_screenwidth()
-        self.geometry(f"{width}x{0}+0+0")
-        self.attributes("-toolwindow", True)
+        self.protocol("WM_DELETE_WINDOW", self.master_.on_closing)
+        self.geometry(f"{self.winfo_screenwidth()}x{0}+0+0")
         self.createMenu()
         self.resizable(width=False, height=False)
         self.title("Tkinter Editor")
-
-    def on_closing(self):
-        for win in [self.master_.window, self.master_.conf_panel, self.master_.wid_panel, self]:
-            try:
-                win.destroy()
-            except TclError:
-                pass
 
     def createMenu(self):
         # создание меню
@@ -40,11 +30,12 @@ class ToolBar(Tk):
     def createFileMenu(self):
         self.file_menu = Menu(master=self, tearoff=0)
         # добавление команд к элементам меню
+        self.file_menu.add_command(label='New', command=self.master_.new)
         self.file_menu.add_command(label='Open', command=self.master_.open)
         self.file_menu.add_command(label='Save', command=self.master_.save)
         self.file_menu.add_command(label='Generate', command=self.master_.generate)
         self.file_menu.add_separator()
-        self.file_menu.add_command(label='Exit', command=sys.exit)
+        self.file_menu.add_command(label='Exit', command=self.master_.on_closing)
         self.menu.add_cascade(label='File', menu=self.file_menu)
 
     def createEditMenu(self):
@@ -67,9 +58,6 @@ class ToolBar(Tk):
                                            command=self.master_.setMode)
         self.view_wid_menu.add_radiobutton(label="Ttk", variable=self.var, value=True,
                                            command=self.master_.setMode)
-
-        self.view_menu.add_checkbutton(label="Window", variable=self.win_var,
-                                       command=self.master_.win_mode)
         self.view_menu.add_checkbutton(label="Configurate panel", variable=self.conf_var,
                                        command=self.master_.conf_mode)
         self.view_menu.add_checkbutton(label="Widgets panel", variable=self.wid_var,

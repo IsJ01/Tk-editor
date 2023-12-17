@@ -1,4 +1,3 @@
-import copy
 import tkinter
 from tkinter import filedialog, NORMAL, TclError, ttk, messagebox
 from xml.dom import minidom
@@ -11,10 +10,13 @@ from info_window import Info
 from menu import ToolBar
 from widgets_panel import WidgetsPanel
 from window import Window
+from obj_dialog import ObjDialog
 
 
 class Main:
     def __init__(self, **kw):
+        self.open_file = ''
+        self.type = "tkinter.Tk"
 
         self.copy_objects = []
         self.selected_objects = []
@@ -31,6 +33,26 @@ class Main:
         self.wid_panel.mainloop()
         self.conf_panel.mainloop()
         self.window.mainloop()
+
+    def on_closing(self):
+        res = messagebox.askokcancel("Warning", "Do you really want to leave?")
+        if res:
+            for win in [self.menu, self.conf_panel, self.wid_panel, self.window]:
+                try:
+                    win.destroy()
+                except TclError:
+                    pass
+
+    def reset(self):
+        self.window.destroy()
+        self.window = Window(self)
+        self.menu.destroy()
+        self.menu = ToolBar(self)
+        self.wid_panel.destroy()
+        self.wid_panel = WidgetsPanel(self)
+        self.conf_panel.destroy()
+        self.conf_panel = ConfigPanel(self)
+        self.event_keeper = EventKeeper(self)
 
     def win_mode(self, *args):
         try:
@@ -52,6 +74,24 @@ class Main:
         except TclError:
             self.conf_panel = ConfigPanel(self)
 
+    def new(self):
+        res = messagebox.askyesnocancel("Warning",
+                                        f"Do you want to save changes to file {self.open_file}")
+        if res:
+            self.save()
+        if res is not None:
+            self.reset()
+            self.open_file = ''
+            self.window.withdraw()
+            obj = ObjDialog(parent=self.menu).result
+            if obj:
+                self.window.deiconify()
+                title, prop = obj
+                self.window.title(title)
+                self.window.geometry(f"{round(prop['width'])}x{round(prop['height'])}"
+                                     f"+{round(prop['x'])}+{round(prop['y'])}")
+                self.type = prop['type']
+
     def wid_mode(self):
         try:
             self.wid_panel.title()
@@ -65,7 +105,7 @@ class Main:
     # метод save сохраняет информацию о приложении в выбранном файле формата json
     def save(self):
         # в переменную file добавляется название файла, в который будет идти запись
-        file = filedialog.asksaveasfilename(filetypes=({'Ui .ui': ".ui"}))
+        file = filedialog.asksaveasfilename(filetypes=({'Ui .ui': ".ui"})) if not self.open_file else self.open_file
 
         if not file:
             return
@@ -78,7 +118,7 @@ class Main:
 
         with open(file, 'w', encoding='utf8') as f:
             doc = minidom.Document()
-            win = doc.createElement("Tk")
+            win = doc.createElement(self.type)
             for field in ["x", "y", "width", "height"]:
                 eval(f"win.setAttribute(attname=field, value=self.window.winfo_{field}().__str__())")
             win.setAttribute(attname="title", value=self.window.title())
@@ -112,23 +152,18 @@ class Main:
     # метод open способен открыть файл с виджетами и разместить их в окно
     def open(self):
         file = filedialog.askopenfilename(filetypes=({'Ui .ui': ".ui"}))
+        self.open_file = file
         if not file:
             return
-        self.window.destroy()
-        self.window = Window(self)
-        self.menu.destroy()
-        self.menu = ToolBar(self)
-        self.wid_panel.destroy()
-        self.wid_panel = WidgetsPanel(self)
-        self.conf_panel.destroy()
-        self.conf_panel = ConfigPanel(self)
-        self.event_keeper = EventKeeper(self)
+        self.reset()
         with open(file, encoding='utf8') as f:
             doc = et.parse(f)
             root = doc.getroot()
             self.window.geometry(f"{root.attrib['width']}x{root.attrib['height']}"
                                  f"+{root.attrib['x']}+{root.attrib['y']}")
             self.window.style.theme_use(root.attrib["theme"])
+            self.window.title(root.attrib["title"])
+            self.type = root.tag
             for el in doc.getroot():
                 new_wid = eval(el.tag)(self.window)
                 new_wid.widgetName = el.attrib["widgetName"]
@@ -249,20 +284,8 @@ class Main:
                                       wid.winfo_width(), wid.winfo_height()))
 
     def cut(self, *args):
-        if self.window.current_obj == self.window:
-            return
-        self.copy_objects.clear()
-        objects = [self.window.current_obj]
-        if self.selected_objects:
-            objects = self.selected_objects
-        delete_objects = []
-        for wid in objects:
-            delete_objects.append((wid, wid.winfo_x(), wid.winfo_y(),
-                                   wid.winfo_width(), wid.winfo_height()))
-            self.copy_objects.append((self.window.copy_widget(wid), wid.winfo_x(), wid.winfo_y(),
-                                      wid.winfo_width(), wid.winfo_height()))
-            self.window.delete_object(wid, del_=False)
-        self.event_keeper.addEvent("delete", delete_objects)
+        self.copy()
+        self.delete()
 
     def paste(self, *args):
         if self.copy_objects:

@@ -1,7 +1,7 @@
 from tkinter import (ttk, Tk, TclError, Label, Entry, Text, Message,
                      Canvas, Button, Radiobutton, Checkbutton, Menubutton, Scale,
                      Listbox, Spinbox, Scrollbar, Frame, LabelFrame)
-from tkinter.colorchooser import Chooser
+from tkinter.colorchooser import askcolor
 
 
 class ConfigPanel(Tk):
@@ -13,10 +13,10 @@ class ConfigPanel(Tk):
         self.current_object = None
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.create_widgets_fields()
-        self.height = self.winfo_screenheight()
-        self.width = self.winfo_screenwidth()
-        self.geometry(f"{int(self.width / 100 * 17.4) + 22}x{int(self.height * 0.97)}"
-                      f"+{int(self.width / 100 * 80 + 2)}+20")
+        self.sc_height = self.winfo_screenheight()
+        self.sc_width = self.winfo_screenwidth()
+        self.geometry(f"{int(self.sc_width / 100 * 17.4) + 22}x{int(self.sc_height * 0.97)}"
+                      f"+{int(self.sc_width / 100 * 80 + 2)}+{int(self.sc_height * 0.022)}")
         self.panel_wigets = []
         self.createPanel()
         self.attributes('-toolwindow', True)
@@ -29,10 +29,10 @@ class ConfigPanel(Tk):
         self.bind("<Button-1>", self.click)
 
     def createPanel(self):
-        self.panel = Canvas(master=self, relief="ridge", width=self.width / 100 * 17.2, height=self.height * 0.97,
+        self.panel = Canvas(master=self, relief="ridge", width=self.sc_width / 100 * 17.2, height=self.sc_height * 0.97,
                             borderwidth=2, scrollregion=(0, 0, 340, 900))
         self.scroll_c2 = Scrollbar(master=self, orient='vertical', command=self.panel.yview)
-        self.scroll_c2.place(x=self.width / 100 * 17.4 + 4, y=2, height=self.height * 0.97)
+        self.scroll_c2.place(x=self.sc_width / 100 * 17.4 + 4, y=2, height=self.sc_height * 0.97)
         self.panel['yscrollcommand'] = self.scroll_c2.set
         self.panel.place(x=0, y=0)
 
@@ -101,12 +101,13 @@ class ConfigPanel(Tk):
             return widget[property]
 
     @staticmethod
-    def hex_color(color):
-        r, g, b = color
-        return '#%02x%02x%02x' % (r, g, b)
-
-    def button_clicked(self, event):
-        self.show_color_dialog(list(event.widget.master.children.values())[1])
+    def button_clicked(event):
+        widget = list(event.widget.master.children.values())[1]
+        text = askcolor(parent=widget)
+        if not text[-1]:
+            return
+        widget.delete(0, "end")
+        widget.insert(0, text[-1])
 
     def get_field(self, fields, master):
         if fields in ['cursor', 'relief', "theme", "orient"]:
@@ -121,15 +122,6 @@ class ConfigPanel(Tk):
             return [entry, button]
         else:
             return [ttk.Entry(master)]
-
-    @staticmethod
-    def show_color_dialog(widget):
-        color_chooser = Chooser(widget)
-        text = color_chooser.show()
-        if not text[-1]:
-            return
-        widget.delete(0, "end")
-        widget.insert(0, text[-1])
 
     def addPropertyFields(self, widget):
         # если объект выбран
@@ -159,16 +151,16 @@ class ConfigPanel(Tk):
                 entry = res[0]
                 if len(res) > 1:
                     btn = res[1]
-                    entry.place(width=self.width / 100 * 6.5, y=3,
-                                x=self.width / 100 * 9)
-                    btn.place(width=self.width / 100 * 1.2, height=23, y=2,
-                              x=self.width / 100 * 9 + self.width / 100 * 6.5)
+                    entry.place(width=self.sc_width / 100 * 6.5, y=3,
+                                x=self.sc_width / 100 * 9)
+                    btn.place(width=self.sc_width / 100 * 1.2, height=23, y=2,
+                              x=self.sc_width / 100 * 9 + self.sc_width / 100 * 6.5)
                 else:
-                    entry.place(width=self.width / 100 * 7.6, y=3,
-                                x=self.width / 100 * 9)
+                    entry.place(width=self.sc_width / 100 * 7.6, y=3,
+                                x=self.sc_width / 100 * 9)
                 entry.insert(0, self.get_property(property_, widget))
-                label.place(width=self.width / 100 * 6.5, y=4,
-                            x=self.width / 100 * 1)
+                label.place(width=self.sc_width / 100 * 6.5, y=4,
+                            x=self.sc_width / 100 * 1)
                 entry.bind("<FocusOut>", self.focus_out)
                 # в переменной a и b хранится результат добавления виджета в панель (для последующего удаления)
                 c = self.panel.create_window(0, properties.index(property_) * 30 + 13, window=frame, anchor="nw")
