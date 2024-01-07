@@ -8,8 +8,8 @@ class ObjDialog(Dialog):
     def __init__(self, parent, title=None):
         sc_height = parent.winfo_screenheight()
         sc_width = parent.winfo_screenwidth()
-        self.properties = {"Window": {"type": "tkinter.Tk", "width": sc_width * 0.65, "height": sc_height * 0.884,
-                                      "x": sc_width * 0.15, "y": sc_height * 0.022},
+        self.properties = {"Window": {"type": "tkinter.Tk", "width": sc_width * 0.3125, "height": sc_height * 0.55,
+                                      "x": sc_width * 0.34, "y": sc_height * 0.222},
                            "Dialog (simple)": {"type": "simpledialog.Dialog", "width": sc_width * 0.15625,
                                                "height": sc_height * 0.222,
                                                "x": (sc_width - sc_width * 0.15625) / 2,

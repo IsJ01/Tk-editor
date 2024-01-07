@@ -10,6 +10,7 @@ from info_window import Info
 from menu import ToolBar
 from widgets_panel import WidgetsPanel
 from window import Window
+from window_panel import WindowPanel
 from obj_dialog import ObjDialog
 
 
@@ -29,15 +30,17 @@ class Main:
         self.conf_panel = ConfigPanel(self)
         self.window = Window(self)
         self.wid_panel = WidgetsPanel(self)
+        self.win_panel = WindowPanel(self)
         self.menu.mainloop()
         self.wid_panel.mainloop()
         self.conf_panel.mainloop()
         self.window.mainloop()
+        self.win_panel.mainloop()
 
     def on_closing(self):
         res = messagebox.askokcancel("Warning", "Do you really want to leave?")
         if res:
-            for win in [self.menu, self.conf_panel, self.wid_panel, self.window]:
+            for win in [self.menu, self.conf_panel, self.wid_panel, self.window, self.win_panel]:
                 try:
                     win.destroy()
                 except TclError:
@@ -53,6 +56,8 @@ class Main:
         self.conf_panel.destroy()
         self.conf_panel = ConfigPanel(self)
         self.event_keeper = EventKeeper(self)
+        self.win_panel.destroy()
+        self.win_panel = WindowPanel(self)
 
     def win_mode(self, *args):
         try:
@@ -74,6 +79,16 @@ class Main:
         except TclError:
             self.conf_panel = ConfigPanel(self)
 
+    def win_panel_mode(self):
+        try:
+            self.win_panel.title()
+            if self.menu.win_panel_var.get():
+                self.win_panel.deiconify()
+            else:
+                self.win_panel.withdraw()
+        except TclError:
+            self.win_panel = WindowPanel(self)
+
     def new(self):
         res = messagebox.askyesnocancel("Warning",
                                         f"Do you want to save changes to file {self.open_file}")
@@ -91,6 +106,7 @@ class Main:
                 self.window.geometry(f"{round(prop['width'])}x{round(prop['height'])}"
                                      f"+{round(prop['x'])}+{round(prop['y'])}")
                 self.type = prop['type']
+                self.win_panel.render()
 
     def wid_mode(self):
         try:
@@ -123,6 +139,7 @@ class Main:
                 eval(f"win.setAttribute(attname=field, value=self.window.winfo_{field}().__str__())")
             win.setAttribute(attname="title", value=self.window.title())
             win.setAttribute(attname="theme", value=self.window.style.theme_use())
+            win.setAttribute(attname="background", value=self.window["background"])
             doc.appendChild(win)
             for widget in self.window.children.values():
                 if not widget.place_info():
@@ -163,6 +180,7 @@ class Main:
                                  f"+{root.attrib['x']}+{root.attrib['y']}")
             self.window.style.theme_use(root.attrib["theme"])
             self.window.title(root.attrib["title"])
+            self.window["background"] = root.attrib["background"]
             self.type = root.tag
             for el in doc.getroot():
                 new_wid = eval(el.tag)(self.window)
@@ -207,6 +225,13 @@ class Main:
             self.window.title(self.fields["title"].get())
             old_fields['theme'] = self.window.style.theme_use()
             self.window.style.theme_use(self.fields["theme"].get())
+            old_fields['background'] = self.window["background"]
+            try:
+                self.window["background"] = self.fields["background"].get()
+                if not self.fields["background"].get():
+                    self.window["background"] = "SystemButtonFace"
+            except TclError:
+                ...
         else:
             conf = {}
             name = self.fields["widgetName"].get()
@@ -249,6 +274,7 @@ class Main:
         new_f = {k: v.get() for k, v in self.fields.items()}
         if not (old_fields == new_f):
             self.event_keeper.addEvent("apply", [self.window.current_obj, old_fields, new_f])
+        self.win_panel.render() if self.menu.win_panel_var.get() else ...
 
     # метод delete удаляет виджет
     def delete(self, *args):
@@ -264,6 +290,10 @@ class Main:
             self.window.delete_object(wid, del_=False)
         self.event_keeper.addEvent("delete", delete_objects)
         self.conf_panel.panel.delete("all")
+        if self.window.contextMenu:
+            self.window.contextMenu.destroy()
+            self.window.contextMenu = None
+        self.win_panel.render() if self.menu.win_panel_var.get() else ...
 
     def undo(self, *args):
         self.event_keeper.removeEvent()
@@ -282,6 +312,10 @@ class Main:
             self.copy_objects.append((self.window.copy_widget(wid),
                                       wid.winfo_x(), wid.winfo_y(),
                                       wid.winfo_width(), wid.winfo_height()))
+        if self.window.contextMenu:
+            self.window.contextMenu.destroy()
+            self.window.contextMenu = None
+        self.win_panel.render() if self.menu.win_panel_var.get() else ...
 
     def cut(self, *args):
         self.copy()
@@ -306,6 +340,10 @@ class Main:
                 self.window.ver_name(new_wid)
                 objects.append(new_wid)
             self.event_keeper.addEvent("paste", objects)
+        if self.window.contextMenu:
+            self.window.contextMenu.destroy()
+            self.window.contextMenu = None
+        self.win_panel.render() if self.menu.win_panel_var.get() else ...
 
     @staticmethod
     def get_info():

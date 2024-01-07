@@ -48,13 +48,14 @@ class CodeGenerator:
         code.append("class Window(tkinter.Tk):")
         code.append("    def __init__(self, **kw):")
         code.append("        super().__init__(**kw)")
-        code.append(f"        self.title('{root.attrib['title']}')")
-        code.append("        self.style = ttk.Style(self)")
-        code.append(f"        self.style.theme_use('{root.attrib['theme']}')")
-        code.append(f"        self.geometry('{w}x{h}+{x}+{y}')")
         code.append("        self.initUi()")
         code.append("")
         code.append("    def initUi(self):")
+        code.append(f"        self.title('{root.attrib['title']}')")
+        code.append("        self.style = ttk.Style(self)")
+        code.append(f"        self.style.theme_use('{root.attrib['theme']}')")
+        code.append(f"        self.config(background='{root.attrib['background']}')")
+        code.append(f"        self.geometry('{w}x{h}+{x}+{y}')")
         code += [" " * 8 + obj for obj in self._get_objects_code(doc)]
         return code
 
@@ -65,14 +66,15 @@ class CodeGenerator:
         code.append("class Dialog(simpledialog.Dialog):")
         code.append("    def __init__(self, parent, title=None):")
         code.append("        super().__init__(parent, title)")
-        code.append(f"        self.title('{root.attrib['title']}')")
-        code.append("        self.style = ttk.Style(self)")
-        code.append(f"        self.style.theme_use('{root.attrib['theme']}')")
         code.append("")
         code.append("    def buttonbox(self):")
         code.append("        pass")
         code.append("")
         code.append("    def body(self, master):")
+        code.append(f"        self.title('{root.attrib['title']}')")
+        code.append("        self.style = ttk.Style(self)")
+        code.append(f"        self.style.theme_use('{root.attrib['theme']}')")
+        code.append(f"        self.config(background='{root.attrib['background']}')")
         code.append(f"        self.geometry('{w}x{h}+{x}+{y}')")
         code += [" " * 8 + obj for obj in self._get_objects_code(doc)]
         return code
@@ -88,6 +90,10 @@ class CodeGenerator:
         code.append("    def show(self, **options):")
         code.append("        self.win = tkinter.Toplevel(self.master)")
         code.append(f"        self.win.geometry('{w}x{h}+{x}+{y}')")
+        code.append(f"        self.win.title('{root.attrib['title']}')")
+        code.append("        self.win.style = ttk.Style(self.win)")
+        code.append(f"        self.win.style.theme_use('{root.attrib['theme']}')")
+        code.append(f"        self.win.config(background='{root.attrib['background']}')")
         code += [" " * 8 + obj for obj in self._get_objects_code(doc, "self.win")]
         code.append("        self.win.mainloop()")
         return code
@@ -105,6 +111,10 @@ class CodeGenerator:
         code.append("        self.initUi()")
         code.append("")
         code.append("    def initUi(self):")
+        code.append(f"        self.config(width={w}, height={h})")
+        code.append("        self.style = ttk.Style(self)")
+        code.append(f"        self.style.theme_use('{root.attrib['theme']}')")
+        code.append(f"        self.config(background='{root.attrib['background']}')")
         code += widgets
         code.append("")
         code.append("    def post(self):")

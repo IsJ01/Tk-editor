@@ -14,9 +14,9 @@ class Window(Tk):
         self.contextMenu = None
         self.sc_height = self.winfo_screenheight()
         self.sc_width = self.winfo_screenwidth()
-        self.geometry(f"{int(self.sc_width / 100 * 65)}x"
-                      f"{int(self.sc_height * 0.884) + 20}"
-                      f"+{int(self.sc_width / 100 * 15)}+{int(self.sc_height * 0.022)}")
+        self.geometry(f"{int(self.sc_width * 0.3125)}x"
+                      f"{int(self.sc_height * 0.55)}"
+                      f"+{int(self.sc_width * 0.34)}+{int(self.sc_height * 0.222)}")
         self.press = [[], False]
         self.dx, self.dy = 0, 0
         self.bind("<Button-1>", self.click)
@@ -29,7 +29,13 @@ class Window(Tk):
         self.bind('<Control-c>', self.master_.copy)
         self.bind('<Control-v>', self.master_.paste)
         self.bind('<Delete>', self.master_.delete)
+        self.bind('<FocusOut>', self.focus_out)
         self.canvases = []
+
+    def focus_out(self, *args):
+        if self.contextMenu:
+            self.contextMenu.destroy()
+            self.contextMenu = None
 
     def createWidgetMenu(self, args):
         if args.widget == self:
@@ -178,13 +184,26 @@ class Window(Tk):
                 name = f"{widget.widgetName}_{self.get_count_of_name(name, names) + 1}"
             widget.widgetName = name
 
-    @staticmethod
-    def move_obj(obj: Widget, pos):
+    def move_obj(self, obj: Widget, pos, master):
         try:
             obj.configure(state=DISABLED)
         except TclError:
             pass
-        obj.place(x=pos[0], y=pos[1])
+        # if master == self or master == self.current_obj:
+        #     obj.master = self
+        # elif master in [ttk.Frame, ttk.LabelFrame, Frame, LabelFrame]:
+        #     obj.master = master.master
+        # else:
+        #     obj.master = master.master
+        # c_x, c_y = (master.winfo_pointerx() - master.winfo_x(),
+        #             master.winfo_pointery() - master.winfo_y())
+        # if obj.master == self:
+        #     c_x, c_y = pos
+        # else:
+        #     c_x, c_y = c_x - master.winfo_rootx(), c_y - master.winfo_rooty()
+        # print(c_x, c_y, obj.master, master)
+        c_x, c_y = pos
+        obj.place(x=c_x, y=c_y)
 
     def add_object(self, obj, pos):
         obj.place(x=pos[0], y=pos[1])
@@ -202,15 +221,18 @@ class Window(Tk):
                 event.y_root - self.winfo_rooty())
         if self.new_obj:
             if self.current_obj:
-                self.move_obj(self.current_obj, (x, y))
+                self.move_obj(self.current_obj, (x - self.current_obj.winfo_width() // 2,
+                                             y - self.current_obj.winfo_height() // 2), event.widget)
             else:
                 obj = self.new_obj(self)
                 self.add_object(obj, (x, y))
+            self.master_.win_panel.render() if self.master_.menu.win_panel_var.get() else ...
         if self.press[1] and event.widget != self:
             self.moved = [self.current_obj, self.moved[1], (x, y,
                                                             self.current_obj.winfo_width(),
                                                             self.current_obj.winfo_height())]
-            self.move_obj(self.current_obj, (x, y))
+            self.move_obj(self.current_obj, (x - self.current_obj.winfo_width() // 2,
+                                             y - self.current_obj.winfo_height() // 2), event.widget)
         elif self.press[1] and self.current_obj in (self, *self.canvases):
             x0, y0 = self.press[0]
             x0, x1 = sorted([x0, x])

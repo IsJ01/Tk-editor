@@ -138,7 +138,7 @@ class ConfigPanel(Tk):
             w = widget.__class__
             # теперь в переменной properties хранятся все свойства
             if widget == self.master_.window:
-                properties = ['width', 'height', 'x', 'y', 'title', "theme"]
+                properties = ['width', 'height', 'x', 'y', 'title', "theme", 'background']
             else:
                 properties = self.widgets[w]
             # теперь в цикле перебираются свойства

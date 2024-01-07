@@ -28,6 +28,23 @@ class EventKeeper:
         for wid in event:
             self.removeAppendEvent([wid], paste=True)
 
+    def redoApplyEvent(self, event):
+        self.addEvent("apply", event)
+        obj, fields = event[0], event[2]
+        if obj == self.master.window:
+            self.master.window.geometry(f"{fields['width']}x{fields['height']}+{fields['x']}+{fields['y']}")
+            self.master.window.title(fields["title"])
+            self.master.window.style.theme_use(fields["theme"])
+            self.master.window["background"] = fields["background"]
+        else:
+            obj.place(x=fields["x"], y=fields["y"], width=fields["width"], height=fields["height"])
+            for field in fields:
+                if field == "widgetName":
+                    obj.widgetName = ''.join(list(fields[field]))
+                if field not in ["widgetName", "x", "y", "width", "height"]:
+                    obj[field] = fields[field]
+        self.master.conf_panel.addPropertyFields(obj)
+
     def removeApplyEvent(self, event):
         self.redo_events.append({"apply": event})
         obj, fields = event[:2]
@@ -35,6 +52,7 @@ class EventKeeper:
             self.master.window.geometry(f"{fields['width']}x{fields['height']}+{fields['x']}+{fields['y']}")
             self.master.window.title(fields["title"])
             self.master.window.style.theme_use(fields["theme"])
+            self.master.window["background"] = fields["background"]
         else:
             obj.place(x=fields["x"], y=fields["y"], width=fields["width"], height=fields["height"])
             for field in fields:
@@ -60,22 +78,6 @@ class EventKeeper:
             self.redoAppendEvent((wid, wid.winfo_x(), wid.winfo_y(),
                                   wid.winfo_width(), wid.winfo_height()), paste=True)
 
-    def redoApplyEvent(self, event):
-        self.addEvent("apply", event)
-        obj, fields = event[0], event[2]
-        if obj == self.master.window:
-            self.master.window.geometry(f"{fields['width']}x{fields['height']}+{fields['x']}+{fields['y']}")
-            self.master.window.title(fields["title"])
-            self.master.window.style.theme_use(fields["theme"])
-        else:
-            obj.place(x=fields["x"], y=fields["y"], width=fields["width"], height=fields["height"])
-            for field in fields:
-                if field == "widgetName":
-                    obj.widgetName = ''.join(list(fields[field]))
-                if field not in ["widgetName", "x", "y", "width", "height"]:
-                    obj[field] = fields[field]
-        self.master.conf_panel.addPropertyFields(obj)
-
     def removeMoveEvent(self, event):
         self.redo_events.append({"move": event})
         event[0].place(x=event[1][0], y=event[1][1], width=event[1][2], height=event[1][3])
@@ -98,6 +100,7 @@ class EventKeeper:
         elif "move" in self.redo_events[-1]:
             self.redoMoveEvent(self.redo_events[-1]["move"])
         del self.redo_events[-1]
+        self.master.win_panel.render() if self.master.menu.win_panel_var.get() else ...
 
     def removeEvent(self):
         if not self.events:
@@ -113,3 +116,4 @@ class EventKeeper:
         elif "move" in self.events[-1]:
             self.removeMoveEvent(self.events[-1]["move"])
         del self.events[-1]
+        self.master.win_panel.render() if self.master.menu.win_panel_var.get() else ...

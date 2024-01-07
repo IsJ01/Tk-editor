@@ -1,5 +1,5 @@
 from tkinter.ttk import Treeview, Style
-from tkinter import NW, END, Tk
+from tkinter import NW, END, Tk, Menu
 from images import ImageDict
 
 
@@ -8,7 +8,7 @@ class WidgetsPanel(Tk):
              "Buttons": ["Button", "Radiobutton", "Checkbutton", "Menubutton"],
              "Boxes": ["Listbox", "Spinbox"],
              "Containers": ["Canvas", "Frame", "LabelFrame"],
-             "Other": ["Scale", "Scrollbar"]}
+             "Other": ["Scale", "Scrollbar", "Dial"]}
 
     ttk_el = {"Text": ["Label", "Entry"],
               "Buttons": ["Button", "Radiobutton", "Checkbutton", "Menubutton"],
@@ -24,7 +24,7 @@ class WidgetsPanel(Tk):
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.sc_height = self.winfo_screenheight()
         self.sc_width = self.winfo_screenwidth()
-        self.geometry(f"{int(self.sc_width / 100 * 15)}x{int(self.sc_height * 0.97)}+0+{int(self.sc_height * 0.022)}")
+        self.geometry(f"{int(self.sc_width / 100 * 15)}x{int(self.sc_height * 0.67)}+0+{int(self.sc_height * 0.022)}")
         self.treeView = Treeview(self)
         self.images = ImageDict(self)
         self.render(self.master_.menu.var.get())
@@ -37,6 +37,9 @@ class WidgetsPanel(Tk):
         self.destroy()
 
     def createTableMenu(self, args):
+        for w in self.master_.menu.winfo_children():
+            if w.widgetName == "treeMenu":
+                w.destroy()
         self.master_.menu.createTableMenu(args)
 
     def render(self, mode: bool):

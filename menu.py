@@ -10,6 +10,7 @@ class ToolBar(Tk):
         self.var = BooleanVar(value=False)
         self.conf_var = BooleanVar(value=True)
         self.wid_var = BooleanVar(value=True)
+        self.win_panel_var = BooleanVar(value=True)
         self.master_ = master
         self.protocol("WM_DELETE_WINDOW", self.master_.on_closing)
         self.geometry(f"{self.winfo_screenwidth()}x{0}+0+0")
@@ -62,6 +63,8 @@ class ToolBar(Tk):
                                        command=self.master_.conf_mode)
         self.view_menu.add_checkbutton(label="Widgets panel", variable=self.wid_var,
                                        command=self.master_.wid_mode)
+        self.view_menu.add_checkbutton(label="Window panel", variable=self.win_panel_var,
+                                       command=self.master_.win_panel_mode)
         self.view_menu.add_cascade(label="Widget panel", menu=self.view_wid_menu)
         self.menu.add_cascade(label='View', menu=self.view_menu)
 
@@ -73,6 +76,7 @@ class ToolBar(Tk):
 
     def createTableMenu(self, args):
         treeMenu = Menu(master=self, tearoff=0)
+        treeMenu.widgetName = "treeMenu"
         treeMenu.add_radiobutton(label="Tk", variable=self.var,
                                  value=False, command=self.master_.setMode)
         treeMenu.add_radiobutton(label="Ttk", variable=self.var,
